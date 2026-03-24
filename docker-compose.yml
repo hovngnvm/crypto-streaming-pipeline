@@ -1,0 +1,34 @@
+services:
+  kafka:
+    image: apache/kafka:3.7.0
+    container_name: kafka-broker
+    ports:
+      - "9092:9092"
+    environment:
+      # KRaft instead of ZooKeeper
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      # Connection configuration
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      # Auto-create topics (for development purposes)
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      # Required for KRaft
+      CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+
+  postgres:
+    image: postgres:15
+    container_name: postgres-sql
+    restart: always
+    ports:
+      - "${POSTGRES_PORT}:5432" # can change the PORT in .env file
+    env_file:
+      - .env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
