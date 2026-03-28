@@ -39,8 +39,8 @@ services:
     env_file:
       - .env
     environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
     depends_on:
       - postgres
     volumes:
@@ -63,7 +63,7 @@ services:
       - postgres
     env_file:
       - .env
-    restart: "no"
+    restart: on-failure
     
 volumes:
   pgdata:

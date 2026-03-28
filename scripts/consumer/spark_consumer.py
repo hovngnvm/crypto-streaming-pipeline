@@ -42,7 +42,7 @@ def main():
             (col("data.p").cast("double") * col("data.q").cast("double")).alias("total_value"),
             when(col("data.m") == True, "SELL").otherwise("BUY").alias("trade_type"),
             (col("data.E") / 1000).cast("long").cast("timestamp").alias("timestamp")
-        )
+        ).filter(col("total_value") > 10000)
         
     # Group by time window (1 minute, sliding every 10 seconds)
     sliding_df = parsed_df \
@@ -54,7 +54,7 @@ def main():
         .agg(_sum("total_value").alias("total_volume"))
         
     # Write results to PostgreSQL
-    db_url = f"jdbc:postgresql://postgres:5432/crypto_streaming"
+    db_url = f"jdbc:postgresql://postgres:5432/{os.environ.get('POSTGRES_DB')}"
     db_properties = {
         "user": os.environ.get("POSTGRES_USER"),
         "password": os.environ.get("POSTGRES_PASSWORD"),
@@ -71,28 +71,22 @@ def main():
             col("total_volume")
         )
 
-        # Truncate old data on the first batch, then append new data
-        write_mode = "overwrite" if batch_id == 0 else "append"
-
         flat_batch_df.write \
             .option("truncate", "true") \
             .jdbc(
                 url=db_url,
                 table="sliding_wd_trade",
-                mode=write_mode,
+                mode="append",
                 properties=db_properties
             )
 
     def write_to_postgres_raw(batch_df, batch_id):
-        # Truncate old data on the first batch, then append new data
-        write_mode = "overwrite" if batch_id == 0 else "append"
-
         batch_df.write \
             .option("truncate", "true") \
             .jdbc(
                 url=db_url,
                 table="raw_trade",
-                mode=write_mode,
+                mode="append",
                 properties=db_properties
             )
     
