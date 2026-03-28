@@ -132,8 +132,8 @@ No local Python or Java install required — everything runs inside Docker.
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/<your-username>/crypto-whale-tracker.git
-cd crypto-whale-tracker
+git clone https://github.com/hovngnvm/crypto-streaming-pipeline.git
+cd crypto-streaming-pipeline
 ```
 
 ### 2. Configure Environment Variables
@@ -150,6 +150,9 @@ POSTGRES_USER=your_username
 POSTGRES_PASSWORD=your_password
 POSTGRES_DB=your_db_name
 POSTGRES_PORT=5433
+
+GRAFANA_USER=your_username
+GRAFANA_PASSWORD=your_password
 ```
 
 ### 3. Start the Full Stack
@@ -168,10 +171,7 @@ This will start all services in order:
 
 ### 4. View Live Dashboard
 
-Open Grafana at `http://localhost:3000` and log in with:
-
-- Username: `admin`
-- Password: `admin`
+Open Grafana at `http://localhost:3000` and log in with your credentials in `.env`.
 
 The PostgreSQL datasource is pre-connected. Create panels querying `raw_trade` and `sliding_wd_trade` to visualize live whale activity.
 
