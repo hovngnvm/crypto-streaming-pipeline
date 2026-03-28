@@ -11,7 +11,7 @@ services:
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
       # Connection configuration
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://127.0.0.1:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       # Auto-create topics (for development purposes)
@@ -28,6 +28,7 @@ services:
     env_file:
       - .env
     volumes:
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
       - pgdata:/var/lib/postgresql/data
 
   grafana:
@@ -35,11 +36,11 @@ services:
     container_name: grafana
     ports:
       - "3000:3000"
+    env_file:
+      - .env
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
-    env_file:
-      - .env
     depends_on:
       - postgres
     volumes:
@@ -47,22 +48,22 @@ services:
 
   producer:
     build: .
-    container_name: crypto-producer
-    command: python scripts/python/api_listener.py
+    container_name: producer
+    command: python scripts/producer/api_listener.py
     depends_on:
       - kafka
     restart: always
 
   consumer:
     build: .
-    container_name: spark-consumer
-    command: spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0,org.postgresql:postgresql:42.6.0 scripts/spark/spark_consumer.py
+    container_name: consumer
+    command: spark-submit --driver-memory 2G --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0,org.postgresql:postgresql:42.7.3 scripts/consumer/spark_consumer.py
     depends_on:
       - kafka
       - postgres
     env_file:
       - .env
-    restart: always
+    restart: "no"
     
 volumes:
   pgdata:

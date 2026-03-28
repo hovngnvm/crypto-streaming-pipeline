@@ -1,12 +1,20 @@
 import websocket
 import json
+import time
 from datetime import datetime, timezone, timedelta
 from kafka import KafkaProducer
 
-producer = KafkaProducer(
-    bootstrap_servers=['kafka:9092'],
-    value_serializer=lambda x: json.dumps(x).encode('utf-8')
-)
+# Connect to Kafka
+producer = None
+while producer is None:
+    try:
+        producer = KafkaProducer(
+            bootstrap_servers=['kafka:9092'],
+            value_serializer=lambda x: json.dumps(x).encode('utf-8')
+        )
+    except Exception as e:
+        time.sleep(1)
+        print('reload')
 
 def on_message(ws, message):
     if not message:
