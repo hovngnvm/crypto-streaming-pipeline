@@ -82,7 +82,6 @@ crypto-whale-tracker/
 ### 1. Producer — WebSocket Ingestion
 
 - Connects to Binance WebSocket stream for `BTCUSDT` and `ETHUSDT`
-- Filters trades with `total_value > $10,000` (whale threshold)
 - Publishes raw trade events to Kafka topic `crypto_trades`
 - Auto-reconnects to Kafka on startup until broker is ready
 
@@ -96,6 +95,7 @@ crypto-whale-tracker/
 
 - Reads continuously from Kafka topic in real time
 - Parses binary Kafka messages and casts to typed schema
+- Filters trades with `total_value > $10,000` (whale threshold)
 - Writes two output streams to PostgreSQL:
   - `raw_trade` — every individual whale trade event
   - `sliding_wd_trade` — 1-minute volume aggregated per symbol/trade type, sliding every 10 seconds

@@ -72,7 +72,6 @@ def main():
         )
 
         flat_batch_df.write \
-            .option("truncate", "true") \
             .jdbc(
                 url=db_url,
                 table="sliding_wd_trade",
@@ -82,7 +81,6 @@ def main():
 
     def write_to_postgres_raw(batch_df, batch_id):
         batch_df.write \
-            .option("truncate", "true") \
             .jdbc(
                 url=db_url,
                 table="raw_trade",
